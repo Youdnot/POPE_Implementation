@@ -10,14 +10,15 @@ submitit
 pathlib
 transforms3d
 numpy
+pandas
 plyfile
 easydict
 scikit-image
 matplotlib
 pyyaml
 tabulate
-numpy
 tqdm
 loguru
 opencv-python
 --extra-index-url https://pypi.nvidia.com
+einops

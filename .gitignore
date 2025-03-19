@@ -3,3 +3,7 @@ __pycache__
 build/
 website_src/
 node_modules/
+
+weights/dinov2_vits14.pth
+weights/sam_vit_h_4b8939.pth
+results/

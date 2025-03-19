@@ -116,14 +116,31 @@ if __name__  == "__main__":
     cv2.imwrite("query_result.png", stack_result_image)
     R, t, inliers = estimate_pose(mkpts0, mkpts1 , K0 , pre_K , 0.5, 0.99)  
     
-    prompt_pose = np.loadtxt(os.path.join("data/demos/inputs", "prompt.txt"  ))
-    target_pose = np.loadtxt(os.path.join("data/demos/inputs", "target.txt"  ))
-    predict_pose = np.zeros((3,4)).astype(np.float32)
-    predict_pose[:3,:3] =  np.matmul(R , prompt_pose[:3,:3])
-    our_predict_pose = predict_pose[:3,:3].copy()
-    predict_pose[:3,3] = target_pose[:3,3]
-    pre_bbox_pts_3d, _ = project_points(_3d_bbox, predict_pose[:3,:4] , K1)
-    pre_bbox_pts_3d = pre_bbox_pts_3d.astype(np.int32)    
-    our_bbox_img = draw_bbox_3d(target_image, pre_bbox_pts_3d,(255,255,255))
-    our_bbox_img = draw_axis(our_bbox_img,predict_pose[:3,:3], predict_pose[:3,3],K1)
-    cv2.imwrite(f"3D_BBox.png",our_bbox_img)
+    # Load the prompt and target poses from text files
+    prompt_pose = np.loadtxt(os.path.join("data/demos/inputs", "prompt.txt"))
+    target_pose = np.loadtxt(os.path.join("data/demos/inputs", "target.txt"))
+    
+    # Initialize the predicted pose matrix
+    predict_pose = np.zeros((3, 4)).astype(np.float32)
+    
+    # Compute the rotation part of the predicted pose
+    predict_pose[:3, :3] = np.matmul(R, prompt_pose[:3, :3])
+    
+    # Copy the rotation part for further use
+    our_predict_pose = predict_pose[:3, :3].copy()
+    
+    # Set the translation part of the predicted pose
+    predict_pose[:3, 3] = target_pose[:3, 3]
+    
+    # Project the 3D bounding box points to 2D using the predicted pose and intrinsic matrix K1
+    pre_bbox_pts_3d, _ = project_points(_3d_bbox, predict_pose[:3, :4], K1)
+    pre_bbox_pts_3d = pre_bbox_pts_3d.astype(np.int32)
+    
+    # Draw the 3D bounding box on the target image
+    our_bbox_img = draw_bbox_3d(target_image, pre_bbox_pts_3d, (255, 255, 255))
+    
+    # Draw the coordinate axis on the target image
+    our_bbox_img = draw_axis(our_bbox_img, predict_pose[:3, :3], predict_pose[:3, 3], K1)
+    
+    # Save the resulting image with the 3D bounding box and axis
+    cv2.imwrite(f"3D_BBox.png", our_bbox_img)
